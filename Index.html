@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulator Paru-Paru: Apa yang Terjadi Kalau Kamu Merokok?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F0F4F2;
+    --bg-panel:#FFFFFF;
+    --bg-panel-2:#E9EFEC;
+    --text:#12181C;
+    --text-muted:#5B6870;
+    --border:#D3DBD7;
+    --accent:#0E8FA3;
+    --accent-soft:#CDEBEF;
+    --healthy:#E8879A;
+    --tar:#2E2016;
+    --danger:#C4453D;
+    --danger-soft:#F5D9D6;
+    --radius:3px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10151B;
+      --bg-panel:#171F27;
+      --bg-panel-2:#1D2732;
+      --text:#EDEFF2;
+      --text-muted:#8B96A3;
+      --border:#28333F;
+      --accent:#3FD0E8;
+      --accent-soft:#173139;
+      --healthy:#F0A0AE;
+      --tar:#4A3524;
+      --danger:#FF6F68;
+      --danger-soft:#3A1E1D;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10151B;
+    --bg-panel:#171F27;
+    --bg-panel-2:#1D2732;
+    --text:#EDEFF2;
+    --text-muted:#8B96A3;
+    --border:#28333F;
+    --accent:#3FD0E8;
+    --accent-soft:#173139;
+    --healthy:#F0A0AE;
+    --tar:#4A3524;
+    --danger:#FF6F68;
+    --danger-soft:#3A1E1D;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.001ms !important; animation-iteration-count:1 !important; transition-duration:0.001ms !important;}
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.mono-num{
+    font-family:'Space Grotesk',system-ui,sans-serif;
+  }
+  h1,h2,h3{
+    line-height:1.15;
+    font-weight:600;
+    margin:0 0 0.6em;
+  }
+  p{margin:0 0 1em;}
+  .wrap{max-width:640px; margin:0 auto; padding:0 1.25rem;}
+  section{padding:3.2rem 0;}
+  .muted{color:var(--text-muted);}
+
+  /* header */
+  header.top{
+    padding:1rem 1.25rem;
+    display:flex;
+    align-items:center;
+    gap:0.6rem;
+    border-bottom:1px solid var(--border);
+  }
+  header.top svg{width:26px; height:26px; flex-shrink:0;}
+  header.top span{font-family:'Space Grotesk'; font-weight:600; font-size:0.95rem; letter-spacing:0.01em;}
+
+  /* hero */
+  .hero{padding:2.6rem 0 2.2rem;}
+  .hero h1{font-size:2rem; letter-spacing:-0.01em;}
+  .hero p.lead{font-size:1.05rem; color:var(--text-muted); max-width:34ch;}
+  .hero-lung{display:flex; justify-content:center; margin:1.6rem 0 1.8rem;}
+  .hero-lung svg{width:150px; height:auto;}
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap:0.5rem;
+    background:var(--accent);
+    color:#04262b;
+    font-family:'Space Grotesk';
+    font-weight:600;
+    font-size:0.95rem;
+    padding:0.75rem 1.3rem;
+    border:none;
+    border-radius:var(--radius);
+    cursor:pointer;
+    text-decoration:none;
+  }
+  :root[data-theme="light"] .btn, .btn{color:#052024;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .btn{color:#04262b;} }
+  .btn:active{transform:translateY(1px);}
+  .btn.secondary{
+    background:transparent;
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  .btn:disabled{opacity:0.45; cursor:default;}
+  .chev{width:14px; height:14px;}
+
+  /* hud panel */
+  .hud-panel{
+    position:relative;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:1.4rem 1.3rem;
+  }
+  .hud-panel::before,.hud-panel::after{
+    content:"";
+    position:absolute;
+    width:10px; height:10px;
+    border:2px solid var(--accent);
+    opacity:0.85;
+  }
+  .hud-panel::before{top:-1px; left:-1px; border-right:none; border-bottom:none;}
+  .hud-panel::after{bottom:-1px; right:-1px; border-left:none; border-top:none;}
+
+  .section-eyebrow{
+    font-size:0.8rem;
+    color:var(--accent);
+    font-weight:600;
+    margin-bottom:0.3rem;
+  }
+
+  /* simulator */
+  .sim-stage{display:flex; justify-content:center; margin:1.2rem 0;}
+  .sim-stage svg{width:200px; height:auto; max-width:60%;}
+  .slider-row{margin:1.3rem 0;}
+  .slider-row label{
+    display:flex; justify-content:space-between;
+    font-size:0.92rem; margin-bottom:0.45rem;
+  }
+  .slider-row .val{font-family:'Space Grotesk'; font-weight:600; color:var(--accent);}
+  input[type=range]{
+    width:100%;
+    -webkit-appearance:none;
+    appearance:none;
+    height:6px;
+    border-radius:4px;
+    background:var(--bg-panel-2);
+    border:1px solid var(--border);
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--accent);
+    border:3px solid var(--bg-panel);
+    box-shadow:0 0 0 1px var(--accent);
+    cursor:pointer;
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px; height:22px;
+    border-radius:50%;
+    background:var(--accent);
+    border:3px solid var(--bg-panel);
+    cursor:pointer;
+  }
+
+  .stat-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.8rem;
+    margin-top:1.4rem;
+  }
+  .stat-box{
+    background:var(--bg-panel-2);
+    border-radius:var(--radius);
+    padding:0.8rem 0.9rem;
+  }
+  .stat-box .label{font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;}
+  .stat-box .num{font-family:'Space Grotesk'; font-size:1.35rem; font-weight:700;}
+  .risk-bar-track{height:8px; background:var(--bg-panel); border-radius:4px; overflow:hidden; margin-top:0.4rem;}
+  .risk-bar-fill{height:100%; width:0%; background:var(--danger); transition:width 0.4s ease;}
+  .disclaimer{font-size:0.78rem; color:var(--text-muted); margin-top:1rem; padding-top:0.9rem; border-top:1px dashed var(--border);}
+  .reset-row{margin-top:1rem;}
+
+  /* balloon game */
+  .balloon-stage{
+    display:flex; flex-direction:column; align-items:center;
+    margin:1.3rem 0;
+  }
+  .balloon-svg{width:140px; height:170px;}
+  #balloonShape{transform-origin:70px 150px; transition:transform 0.12s ease-out;}
+  .timer-track{width:100%; height:8px; background:var(--bg-panel-2); border-radius:4px; overflow:hidden; margin:1rem 0 1.2rem;}
+  .timer-fill{height:100%; width:100%; background:var(--accent); transition:width 0.1s linear;}
+  .liters-readout{
+    font-family:'Space Grotesk'; font-weight:700; font-size:2rem; text-align:center; margin:0.2rem 0;
+  }
+  .liters-readout span{font-size:1rem; font-weight:500; color:var(--text-muted);}
+  .cap-note{text-align:center; font-size:0.85rem; color:var(--text-muted); min-height:1.4em;}
+  .game-actions{display:flex; justify-content:center; gap:0.7rem; margin-top:1rem;}
+  .best-row{text-align:center; font-size:0.82rem; color:var(--text-muted); margin-top:0.8rem;}
+
+  /* facts */
+  .fact-card{
+    perspective:1000px;
+    height:118px;
+    margin-bottom:0.85rem;
+    cursor:pointer;
+  }
+  .fact-inner{
+    position:relative; width:100%; height:100%;
+    transition:transform 0.5s;
+    transform-style:preserve-3d;
+  }
+  .fact-card.flipped .fact-inner{transform:rotateY(180deg);}
+  .fact-front,.fact-back{
+    position:absolute; inset:0;
+    backface-visibility:hidden;
+    border-radius:var(--radius);
+    padding:1rem 1.1rem;
+    display:flex; align-items:center;
+    font-size:0.93rem;
+  }
+  .fact-front{background:var(--bg-panel); border:1px solid var(--border);}
+  .fact-back{background:var(--accent-soft); border:1px solid var(--accent); transform:rotateY(180deg); font-size:0.86rem;}
+  .fact-front .tap-hint{position:absolute; bottom:0.6rem; right:0.8rem; font-size:0.72rem; color:var(--text-muted);}
+
+  footer{
+    padding:2.2rem 0 3rem;
+    border-top:1px solid var(--border);
+    font-size:0.82rem; color:var(--text-muted);
+  }
+
+  @keyframes breathe{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.035);}
+  }
+  .breathe-group{
+    transform-origin:160px 200px;
+    animation:breathe 3.4s ease-in-out infinite;
+  }
+
+  @media (min-width:600px){
+    .hero h1{font-size:2.5rem;}
+    .stat-grid{grid-template-columns:repeat(4,1fr);}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <svg viewBox="0 0 24 24" fill="none"><path d="M12 3v5m0 0c-1 3-4 2-5 6-1 4 1 7 3 7s2.5-3 2-6m0-7c1 3 4 2 5 6 1 4-1 7-3 7s-2.5-3-2-6" stroke="var(--accent)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <span>Simulator Paru-Paru</span>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Apa yang sebenarnya terjadi di dalam paru-parumu?</h1>
+      <p class="lead">Geser dua slider di bawah, dan lihat paru-paru berubah detik itu juga. Bukan ceramah — ini eksperimen yang bisa kamu coba sendiri.</p>
+      <div class="hero-lung">
+        <svg id="heroLung" viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg">
+          <g class="breathe-group">
+            <path d="M160 20 L160 75" stroke="#9AA6AE" stroke-width="12" stroke-linecap="round"/>
+            <path d="M160 60 C140 80 120 80 100 92" stroke="#9AA6AE" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <path d="M160 60 C180 80 200 80 220 92" stroke="#9AA6AE" stroke-width="9" fill="none" stroke-linecap="round"/>
+            <path id="heroLeft" d="M100,90 C58,92 28,142 30,192 C32,250 58,300 100,310 C132,316 148,292 150,260 C156,198 150,130 130,95 C122,82 110,84 100,90 Z" fill="var(--healthy)"/>
+            <path id="heroRight" d="M220,90 C262,92 292,142 289,196 C287,251 262,299 221,309 C193,313 178,291 176,259 C171,196 178,130 199,95 C207,82 216,84 220,90 Z" fill="var(--healthy)"/>
+          </g>
+        </svg>
+      </div>
+      <a href="#simulator" class="btn">Mulai simulasi
+        <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <section id="simulator">
+    <div class="wrap">
+      <div class="section-eyebrow">Bagian 1</div>
+      <h2>Simulator transformasi paru-paru</h2>
+      <p class="muted">Atur kebiasaan merokoknya, lalu perhatikan warna, tekstur, dan ukuran paru-paru di layar. Ini yang terjadi secara nyata pada jaringan paru — hanya dipercepat.</p>
+
+      <div class="hud-panel">
+        <div class="sim-stage">
+          <svg id="simLung" viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <clipPath id="clipLeft"><path d="M100,90 C58,92 28,142 30,192 C32,250 58,300 100,310 C132,316 148,292 150,260 C156,198 150,130 130,95 C122,82 110,84 100,90 Z"/></clipPath>
+              <clipPath id="clipRight"><path d="M220,90 C262,92 292,142 289,196 C287,251 262,299 221,309 C193,313 178,291 176,259 C171,196 178,130 199,95 C207,82 216,84 220,90 Z"/></clipPath>
+            </defs>
+            <g id="simScale" style="transform-origin:160px 200px;">
+              <g class="breathe-group">
+                <path d="M160 20 L160 75" stroke="#9AA6AE" stroke-width="12" stroke-linecap="round"/>
+                <path d="M160 60 C140 80 120 80 100 92" stroke="#9AA6AE" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <path d="M160 60 C180 80 200 80 220 92" stroke="#9AA6AE" stroke-width="9" fill="none" stroke-linecap="round"/>
+                <path id="simLeft" d="M100,90 C58,92 28,142 30,192 C32,250 58,300 100,310 C132,316 148,292 150,260 C156,198 150,130 130,95 C122,82 110,84 100,90 Z" fill="var(--healthy)"/>
+                <path id="simRight" d="M220,90 C262,92 292,142 289,196 C287,251 262,299 221,309 C193,313 178,291 176,259 C171,196 178,130 199,95 C207,82 216,84 220,90 Z" fill="var(--healthy)"/>
+                <g id="speckleLeft" clip-path="url(#clipLeft)"></g>
+                <g id="speckleRight" clip-path="url(#clipRight)"></g>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <div class="slider-row">
+          <label>Batang rokok per hari <span class="val"><span id="cigsVal">12</span> batang</span></label>
+          <input type="range" id="cigsSlider" min="0" max="40" step="1" value="12">
+        </div>
+        <div class="slider-row">
+          <label>Lama merokok <span class="val"><span id="yearsVal">5</span> tahun</span></label>
+          <input type="range" id="yearsSlider" min="0" max="30" step="1" value="5">
+        </div>
+
+        <div class="stat-grid">
+          <div class="stat-box">
+            <div class="label">Kapasitas paru</div>
+            <div class="num" id="capacityStat">100%</div>
+          </div>
+          <div class="stat-box">
+            <div class="label">Usia paru bertambah</div>
+            <div class="num" id="ageStat">+0 th</div>
+          </div>
+          <div class="stat-box" style="grid-column:span 2;">
+            <div class="label">Tingkat risiko — <span id="riskLabel">rendah</span></div>
+            <div class="risk-bar-track"><div class="risk-bar-fill" id="riskBar"></div></div>
+          </div>
+        </div>
+
+        <div class="reset-row">
+          <button class="btn secondary" id="resetBtn">Reset ke paru sehat</button>
+        </div>
+
+        <div class="disclaimer" id="packNote">Setara ±0 pack-year. Ilustrasi edukatif berdasarkan pola umum riset kesehatan paru, bukan alat diagnosis medis.</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="capacity">
+    <div class="wrap">
+      <div class="section-eyebrow">Bagian 2</div>
+      <h2>Uji napas: berapa liter yang bisa kamu tarik?</h2>
+      <p class="muted">Paru-paru sehat orang dewasa muda menampung sekitar 6 liter udara. Tekan tombol secepat mungkin selama 6 detik — kondisi paru mengikuti pengaturanmu di simulator atas.</p>
+
+      <div class="hud-panel">
+        <div class="balloon-stage">
+          <svg class="balloon-svg" viewBox="0 0 140 170" xmlns="http://www.w3.org/2000/svg">
+            <line x1="70" y1="150" x2="70" y2="168" stroke="var(--text-muted)" stroke-width="2"/>
+            <ellipse id="balloonShape" cx="70" cy="90" rx="34" ry="42" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div class="timer-track"><div class="timer-fill" id="timerFill"></div></div>
+        <div class="liters-readout"><span id="litersNum">0.0</span><span> L</span></div>
+        <div class="cap-note" id="capNote">Tekan mulai, lalu ketuk tombol secepat mungkin.</div>
+        <div class="game-actions">
+          <button class="btn" id="playBtn">Mulai tarik napas</button>
+        </div>
+        <div class="best-row" id="bestRow"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="facts">
+    <div class="wrap">
+      <div class="section-eyebrow">Bagian 3</div>
+      <h2>Fakta cepat</h2>
+      <p class="muted">Ketuk tiap kartu untuk membuka faktanya.</p>
+
+      <div class="fact-card">
+        <div class="fact-inner">
+          <div class="fact-front">Rokok cuma isinya nikotin sama tar, kan?<span class="tap-hint">Ketuk</span></div>
+          <div class="fact-back">Faktanya: asap rokok mengandung lebih dari 7.000 zat kimia, dan sedikitnya 70 di antaranya diketahui bersifat karsinogenik — pemicu kanker.</div>
+        </div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-inner">
+          <div class="fact-front">Perokok pasif nggak separah yang ngerokok langsung.<span class="tap-hint">Ketuk</span></div>
+          <div class="fact-back">Faktanya: tidak ada batas aman untuk asap rokok orang lain. Orang di sekitar perokok tetap menghirup banyak zat berbahaya yang sama.</div>
+        </div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-inner">
+          <div class="fact-front">Paru-paru yang rusak nggak bisa pulih lagi.<span class="tap-hint">Ketuk</span></div>
+          <div class="fact-back">Faktanya: paru-paru bisa pulih sebagian. Beberapa minggu setelah berhenti, fungsi paru dan sirkulasi mulai membaik — walau pemulihan penuh butuh bertahun-tahun.</div>
+        </div>
+      </div>
+      <div class="fact-card">
+        <div class="fact-inner">
+          <div class="fact-front">Vape jelas lebih aman dibanding rokok biasa.<span class="tap-hint">Ketuk</span></div>
+          <div class="fact-back">Faktanya: vape tetap mengandung nikotin adiktif dan berbagai zat kimia lain. "Lebih aman" bukan berarti "aman".</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <p>Dibuat untuk edukasi kesehatan remaja dan pelajar. Angka pada simulator adalah ilustrasi berbasis pola umum, bukan hasil pengukuran medis pribadi.</p>
+      <p>Sumber acuan: World Health Organization (WHO), Kementerian Kesehatan Republik Indonesia.</p>
+    </div>
+  </footer>
+</main>
+
+<script>
+(function(){
+  "use strict";
+
+  // ---------- Lung simulator ----------
+  var cigsSlider = document.getElementById('cigsSlider');
+  var yearsSlider = document.getElementById('yearsSlider');
+  var cigsVal = document.getElementById('cigsVal');
+  var yearsVal = document.getElementById('yearsVal');
+  var simLeft = document.getElementById('simLeft');
+  var simRight = document.getElementById('simRight');
+  var heroLeft = document.getElementById('heroLeft');
+  var heroRight = document.getElementById('heroRight');
+  var simScale = document.getElementById('simScale');
+  var capacityStat = document.getElementById('capacityStat');
+  var ageStat = document.getElementById('ageStat');
+  var riskLabel = document.getElementById('riskLabel');
+  var riskBar = document.getElementById('riskBar');
+  var packNote = document.getElementById('packNote');
+  var resetBtn = document.getElementById('resetBtn');
+  var speckleLeft = document.getElementById('speckleLeft');
+  var speckleRight = document.getElementById('speckleRight');
+
+  var healthyRGB = [232,135,154];
+  var tarRGB = [46,32,22];
+
+  var currentDamage = 0; // shared with balloon game
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function mixColor(t){
+    var r = Math.round(lerp(healthyRGB[0], tarRGB[0], t));
+    var g = Math.round(lerp(healthyRGB[1], tarRGB[1], t));
+    var b = Math.round(lerp(healthyRGB[2], tarRGB[2], t));
+    return 'rgb('+r+','+g+','+b+')';
+  }
+
+  function genSpeckles(container, bx, by, bw, bh, count){
+    var arr = [];
+    for(var i=0;i<count;i++){
+      var cx = bx + Math.random()*bw;
+      var cy = by + Math.random()*bh;
+      var r = 2.5 + Math.random()*5;
+      var threshold = Math.random()*90; // damage level at which it starts appearing
+      var circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', cx.toFixed(1));
+      circle.setAttribute('cy', cy.toFixed(1));
+      circle.setAttribute('r', r.toFixed(1));
+      circle.setAttribute('fill', '#1A1210');
+      circle.setAttribute('opacity', '0');
+      container.appendChild(circle);
+      arr.push({el:circle, threshold:threshold});
+    }
+    return arr;
+  }
+
+  var speckLeftArr = genSpeckles(speckleLeft, 30, 90, 120, 220, 26);
+  var speckRightArr = genSpeckles(speckleRight, 176, 90, 115, 220, 26);
+
+  function updateSpeckles(arr, damage){
+    for(var i=0;i<arr.length;i++){
+      var s = arr[i];
+      var op = (damage - s.threshold) / 14;
+      if(op < 0) op = 0;
+      if(op > 0.85) op = 0.85;
+      s.el.setAttribute('opacity', op.toFixed(2));
+    }
+  }
+
+  function riskInfo(damage){
+    if(damage < 8) return {label:'rendah', color:'#4FB477'};
+    if(damage < 30) return {label:'mulai meningkat', color:'#D9A441'};
+    if(damage < 60) return {label:'tinggi', color:'#D9722E'};
+    return {label:'sangat tinggi', color:getComputedStyle(document.documentElement).getPropertyValue('--danger') || '#C4453D'};
+  }
+
+  function updateSim(){
+    var cigs = parseInt(cigsSlider.value, 10);
+    var years = parseInt(yearsSlider.value, 10);
+    cigsVal.textContent = cigs;
+    yearsVal.textContent = years;
+
+    var packYears = (cigs/20) * years;
+    var damage = Math.min(92, packYears * 3.2);
+    currentDamage = damage;
+    var t = damage/100;
+
+    var color = mixColor(t);
+    simLeft.setAttribute('fill', color);
+    simRight.setAttribute('fill', color);
+    heroLeft.setAttribute('fill', mixColor(Math.min(t,0.15)));
+    heroRight.setAttribute('fill', mixColor(Math.min(t,0.15)));
+
+    var shrink = 1 - t*0.1;
+    simScale.style.transform = 'scale(' + shrink.toFixed(3) + ')';
+
+    updateSpeckles(speckLeftArr, damage);
+    updateSpeckles(speckRightArr, damage);
+
+    capacityStat.textContent = Math.round(100 - damage) + '%';
+    var ageAdd = Math.round(damage * 0.5);
+    ageStat.textContent = '+' + ageAdd + ' th';
+
+    var risk = riskInfo(damage);
+    riskLabel.textContent = risk.label;
+    riskBar.style.width = Math.min(100, damage + 8) + '%';
+    riskBar.style.background = risk.color;
+
+    packNote.textContent = 'Setara ±' + packYears.toFixed(1) + ' pack-year. Ilustrasi edukatif berdasarkan pola umum riset kesehatan paru, bukan alat diagnosis medis.';
+  }
+
+  cigsSlider.addEventListener('input', updateSim);
+  yearsSlider.addEventListener('input', updateSim);
+  resetBtn.addEventListener('click', function(){
+    cigsSlider.value = 0;
+    yearsSlider.value = 0;
+    updateSim();
+  });
+  updateSim();
+
+  // ---------- Balloon capacity game ----------
+  var playBtn = document.getElementById('playBtn');
+  var balloonShape = document.getElementById('balloonShape');
+  var timerFill = document.getElementById('timerFill');
+  var litersNum = document.getElementById('litersNum');
+  var capNote = document.getElementById('capNote');
+  var bestRow = document.getElementById('bestRow');
+
+  var GAME_MS = 6000;
+  var HEALTHY_MAX_SCALE = 2.5;
+  var BASE_R = 34;
+  var GROWTH_PER_CLICK = 0.05;
+
+  var playing = false;
+  var clicks = 0;
+  var startTime = 0;
+  var rafId = null;
+
+  function maxScaleForDamage(){
+    var t = currentDamage/100;
+    return 1 + (HEALTHY_MAX_SCALE - 1) * (1 - t*0.55);
+  }
+
+  function getBest(){
+    try{
+      var v = localStorage.getItem('paru_best_liters');
+      return v ? parseFloat(v) : null;
+    }catch(e){ return null; }
+  }
+  function setBest(v){
+    try{ localStorage.setItem('paru_best_liters', v.toFixed(1)); }catch(e){}
+  }
+  function renderBest(){
+    var b = getBest();
+    bestRow.textContent = b ? ('Rekor terbaikmu: ' + b.toFixed(1) + ' L') : '';
+  }
+  renderBest();
+
+  function litersFromScale(scale){
+    return ((scale - 1) / (HEALTHY_MAX_SCALE - 1)) * 6;
+  }
+
+  function renderBalloon(scale){
+    balloonShape.style.transform = 'scale(' + scale.toFixed(3) + ')';
+    litersNum.textContent = litersFromScale(scale).toFixed(1);
+  }
+
+  function tick(){
+    if(!playing) return;
+    var elapsed = Date.now() - startTime;
+    var remain = Math.max(0, GAME_MS - elapsed);
+    timerFill.style.width = (remain/GAME_MS*100) + '%';
+    if(elapsed >= GAME_MS){
+      endGame();
+      return;
+    }
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function startGame(){
+    playing = true;
+    clicks = 0;
+    startTime = Date.now();
+    playBtn.textContent = 'Tarik napas!';
+    capNote.textContent = 'Ketuk tombol secepat mungkin!';
+    renderBalloon(1);
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function endGame(){
+    playing = false;
+    timerFill.style.width = '0%';
+    var maxScale = maxScaleForDamage();
+    var rawScale = 1 + clicks * GROWTH_PER_CLICK;
+    var finalScale = Math.min(rawScale, maxScale);
+    renderBalloon(finalScale);
+    var liters = litersFromScale(finalScale);
+    var pct = Math.round((liters/6)*100);
+
+    var msg;
+    if(rawScale > maxScale + 0.05){
+      msg = 'Kamu sanggup narik lebih kuat, tapi kapasitas paru saat ini membatasinya di ' + pct + '% dari normal.';
+    } else if(pct >= 90){
+      msg = 'Mantap — hampir kapasitas penuh paru sehat!';
+    } else if(pct >= 60){
+      msg = 'Lumayan, tapi masih di bawah kapasitas paru sehat penuh.';
+    } else {
+      msg = 'Kapasitasnya jauh dari maksimal. Coba turunkan slider di simulator lalu ulangi.';
+    }
+    capNote.textContent = msg;
+    playBtn.textContent = 'Coba lagi';
+
+    var best = getBest();
+    if(!best || liters > best){ setBest(liters); }
+    renderBest();
+  }
+
+  playBtn.addEventListener('click', function(){
+    if(!playing){
+      startGame();
+      return;
+    }
+    clicks++;
+    var maxScale = maxScaleForDamage();
+    var scale = Math.min(1 + clicks*GROWTH_PER_CLICK, maxScale);
+    renderBalloon(scale);
+    if(scale >= maxScale){
+      capNote.textContent = 'Batas maksimum tercapai untuk kondisi ini.';
+    }
+  });
+
+  // ---------- Fact cards ----------
+  var cards = document.querySelectorAll('.fact-card');
+  cards.forEach(function(card){
+    card.addEventListener('click', function(){
+      card.classList.toggle('flipped');
+    });
+  });
+})();
+</script>
+</body>
+</html>
